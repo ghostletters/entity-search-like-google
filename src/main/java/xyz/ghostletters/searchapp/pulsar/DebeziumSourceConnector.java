@@ -13,14 +13,14 @@ import java.util.Map;
 
 import static java.util.Map.entry;
 
-public class PulsarSourceAdmin {
+public class DebeziumSourceConnector {
 
     public static final String SOURCE_NAME = "debezium-postgres-source";
     public static final String TENANT = "public";
     public static final String NAMESPACE = "default";
-    public static final String DEBEZIUM_POSTGRES_2_7_2_NAR = "https://downloads.apache.org/pulsar/pulsar-2.7.2/connectors/pulsar-io-debezium-postgres-2.7.2.nar";
+    public static final String PULSAR_VERSION = "2.7.2";
 
-    public void onStart(@Observes StartupEvent startupEvent) {
+    public void onStart(@Observes StartupEvent startupEvent) throws PulsarClientException, PulsarAdminException {
         PulsarAdmin admin = buildPulsarAdmin();
 
         if (isDebeziumAlreadyRunning(admin)) {
@@ -28,33 +28,35 @@ public class PulsarSourceAdmin {
             return;
         }
 
-        SourceConfig sourceConfig = buildDebeziumConfig();
-
-        createSource(admin, sourceConfig);
+        createSource(admin, buildDebeziumConfig());
     }
 
-    private boolean isDebeziumAlreadyRunning(PulsarAdmin admin) {
-        try {
-            List<String> sources = admin.sources().listSources(TENANT, NAMESPACE);
+    private PulsarAdmin buildPulsarAdmin() throws PulsarClientException {
+        return PulsarAdmin.builder()
+                .serviceHttpUrl("http://localhost:8080/")
+                .build();
+    }
 
-            if (sources.contains(SOURCE_NAME)) {
-                SourceStatus sourceStatus = admin.sources().getSourceStatus(TENANT, NAMESPACE, SOURCE_NAME);
-                return sourceStatus.numRunning > 0;
-            }
-        } catch (PulsarAdminException e) {
-            e.printStackTrace();
+    private boolean isDebeziumAlreadyRunning(PulsarAdmin admin) throws PulsarAdminException {
+        List<String> sources = admin.sources().listSources(TENANT, NAMESPACE);
+
+        if (sources.contains(SOURCE_NAME)) {
+            SourceStatus sourceStatus = admin.sources().getSourceStatus(TENANT, NAMESPACE, SOURCE_NAME);
+            return sourceStatus.numRunning > 0;
         }
 
         return false;
     }
 
     private void createSource(PulsarAdmin admin, SourceConfig sourceConfig) {
-            admin.sources().createSourceWithUrlAsync(
-                    sourceConfig,
-                    DEBEZIUM_POSTGRES_2_7_2_NAR
-            );
-            // Do avoid heavy download (160 MB)
-            // admin.sources().createSource(sourceConfig, "../docker/pulsar/pulsar-io-debezium-postgres-2.7.2.nar");
+        System.out.println("Downloading debezium source connector...");
+
+        admin.sources().createSourceWithUrlAsync(sourceConfig,
+                "https://downloads.apache.org/pulsar/pulsar-" + PULSAR_VERSION +
+                        "/connectors/pulsar-io-debezium-postgres-" + PULSAR_VERSION + ".nar");
+//             Do avoid heavy download (160 MB)
+//             admin.sources().createSource(sourceConfig, "../docker/pulsar/pulsar-io-debezium-postgres-" +
+//                                    PULSAR_VERSION + ".nar");
     }
 
     private SourceConfig buildDebeziumConfig() {
@@ -64,7 +66,7 @@ public class PulsarSourceAdmin {
                 .tenant(TENANT)
                 .namespace(NAMESPACE)
                 .name(SOURCE_NAME)
-                .topicName("debezium-postgres-source")
+                .topicName("debezium-postgres-topic")
                 .archive("/pulsar/connectors/pulsar-io-debezium-postgres-2.7.2.nar")
                 .parallelism(1)
                 .configs(configMap)
@@ -84,22 +86,5 @@ public class PulsarSourceAdmin {
                 entry("table.whitelist", "public.book"),
                 entry("pulsar.service.url", "pulsar://127.0.0.1:6650")
         );
-    }
-
-    private PulsarAdmin buildPulsarAdmin() {
-        String url = "http://localhost:8080/";
-        boolean useTls = false;
-        boolean tlsAllowInsecureConnection = false;
-        String tlsTrustCertsFilePath = null;
-        try {
-            return PulsarAdmin.builder()
-                    .serviceHttpUrl(url)
-                    .tlsTrustCertsFilePath(tlsTrustCertsFilePath)
-                    .allowTlsInsecureConnection(tlsAllowInsecureConnection)
-                    .build();
-        } catch (PulsarClientException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }
