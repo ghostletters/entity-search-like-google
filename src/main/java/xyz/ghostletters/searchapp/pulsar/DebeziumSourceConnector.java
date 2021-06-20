@@ -5,86 +5,83 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.common.io.SourceConfig;
-import org.apache.pulsar.common.policies.data.SourceStatus;
 
 import javax.enterprise.event.Observes;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Map.entry;
-
 public class DebeziumSourceConnector {
 
-    public static final String SOURCE_NAME = "debezium-postgres-source";
-    public static final String TENANT = "public";
-    public static final String NAMESPACE = "default";
-    public static final String PULSAR_VERSION = "2.7.2";
+    private static final String SOURCE_NAME = "debezium-postgres-source";
+    private static final String TENANT = "public";
+    private static final String NAMESPACE = "default";
+    private static final String PULSAR_VERSION = "2.8.0";
+
 
     public void onStart(@Observes StartupEvent startupEvent) throws PulsarClientException, PulsarAdminException {
-        PulsarAdmin admin = buildPulsarAdmin();
+        PulsarAdmin admin = buildAdmin();
 
-        if (isDebeziumAlreadyRunning(admin)) {
-            System.out.println(SOURCE_NAME + " is already running. Do not try to create it.");
-            return;
+        if (isDebeziumRunning(admin)) {
+            return; // do nothing
         }
 
-        createSource(admin, buildDebeziumConfig());
+        createSource(admin);
     }
 
-    private PulsarAdmin buildPulsarAdmin() throws PulsarClientException {
-        return PulsarAdmin.builder()
-                .serviceHttpUrl("http://localhost:8080/")
-                .build();
-    }
+    private void createSource(PulsarAdmin admin) throws PulsarAdminException {
+        SourceConfig sourceConfig = buildSourceConfig();
 
-    private boolean isDebeziumAlreadyRunning(PulsarAdmin admin) throws PulsarAdminException {
-        List<String> sources = admin.sources().listSources(TENANT, NAMESPACE);
-
-        if (sources.contains(SOURCE_NAME)) {
-            SourceStatus sourceStatus = admin.sources().getSourceStatus(TENANT, NAMESPACE, SOURCE_NAME);
-            return sourceStatus.numRunning > 0;
-        }
-
-        return false;
-    }
-
-    private void createSource(PulsarAdmin admin, SourceConfig sourceConfig) {
-        System.out.println("Downloading debezium source connector...");
-
-        admin.sources().createSourceWithUrlAsync(sourceConfig,
+        admin.sources().createSourceWithUrl(sourceConfig,
                 "https://downloads.apache.org/pulsar/pulsar-" + PULSAR_VERSION +
                         "/connectors/pulsar-io-debezium-postgres-" + PULSAR_VERSION + ".nar");
-//             Do avoid heavy download (160 MB)
-//             admin.sources().createSource(sourceConfig, "../docker/pulsar/pulsar-io-debezium-postgres-" +
-//                                    PULSAR_VERSION + ".nar");
     }
 
-    private SourceConfig buildDebeziumConfig() {
-        Map<String, Object> configMap = buildDebeziumSpecificConfig();
+    private SourceConfig buildSourceConfig() {
+        Map<String, Object> configMap = buildDebeziumConfig();
 
+        // https://pulsar.apache.org/docs/en/io-debezium-source/#example-of-postgresql
         return SourceConfig.builder()
                 .tenant(TENANT)
                 .namespace(NAMESPACE)
                 .name(SOURCE_NAME)
                 .topicName("debezium-postgres-topic")
-                .archive("/pulsar/connectors/pulsar-io-debezium-postgres-2.7.2.nar")
+                .archive("/pulsar/connectors/pulsar-io-debezium-postgres-" + PULSAR_VERSION + ".nar")
                 .parallelism(1)
                 .configs(configMap)
                 .build();
     }
 
-    private Map<String, Object> buildDebeziumSpecificConfig() {
+    private Map<String, Object> buildDebeziumConfig() {
+        // https://pulsar.apache.org/docs/en/io-debezium-source/#example-of-postgresql
         return Map.ofEntries(
-                entry("database.hostname", "postgres"),
-                entry("database.port", "5432"),
-                entry("database.user", "postgres"),
-                entry("database.password", "changeme"),
-                entry("database.dbname", "entity_search"),
-                entry("database.server.name", "foobar"),
-                entry("plugin.name", "pgoutput"),
-                entry("schema.whitelist", "public"),
-                entry("table.whitelist", "public.book"),
-                entry("pulsar.service.url", "pulsar://127.0.0.1:6650")
+                Map.entry("plugin.name", "pgoutput"),
+                Map.entry("pulsar.service.url", "pulsar://127.0.0.1:6650"),
+                Map.entry("database.hostname", "postgres"),
+                Map.entry("database.port", "5432"),               // defined in docker-compose.yml
+                Map.entry("database.user", "postgres"),           // defined in docker-compose.yml
+                Map.entry("database.password", "changeme"),       // defined in docker-compose.yml
+                Map.entry("database.dbname", "entity_search"),    // defined in docker-compose.yml
+                Map.entry("database.server.name", "foobar"),
+                Map.entry("schema.whitelist", "public"),
+                Map.entry("table.whitelist", "public.book")
+                // creates topic: persistent://public/default/foobar.public.book
         );
+    }
+
+
+    private boolean isDebeziumRunning(PulsarAdmin admin) throws PulsarAdminException {
+        List<String> sources = admin.sources().listSources(TENANT, NAMESPACE);
+
+        if (sources.contains(SOURCE_NAME)) {
+            return admin.sources().getSourceStatus(TENANT, NAMESPACE, SOURCE_NAME)
+                    .numRunning > 0;
+        }
+        return false;
+    }
+
+    private PulsarAdmin buildAdmin() throws PulsarClientException {
+        return PulsarAdmin.builder()
+                .serviceHttpUrl("http://localhost:8080/")
+                .build();
     }
 }
