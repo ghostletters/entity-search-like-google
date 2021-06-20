@@ -10,7 +10,21 @@ services:
         POSTGRES_DB: entity_search
       ports:
         - "5432:5432"
-      #volumes:
-      #  - "./postgres/postgres.conf:/etc/postgresql/postgresql.conf"
-      #command: postgres -c config_file=/etc/postgresql/postgresql.conf
+      command: postgres -c wal_level=logical
+
+  # https://pulsar.apache.org/docs/en/standalone/
+  pulsar:
+      image: apachepulsar/pulsar:${PULSAR_VERSION}
+      hostname: pulsar
+      ports:
+        - "8080:8080"
+        - "6650:6650"
+#      volumes:
+        #- "./pulsar/data/:/pulsar/data"
+#        - "./pulsar/pulsar-io-debezium-postgres-${PULSAR_VERSION}.nar:/pulsar/connectors/pulsar-io-debezium-postgres-${PULSAR_VERSION}.nar"
+#        - "./pulsar/debezium-postgres-source-config.yaml:/pulsar/conf/debezium-postgres-source-config.yaml"
+#        - "./pulsar/start-debezium-connector.sh:/pulsar/start-debezium-connector.sh"
+#      command: sh -c "bin/pulsar standalone && sleep 25s && bin/pulsar-admin sources create --source-config-file conf/debezium-postgres-source-config.yaml"
+      command: bin/pulsar standalone
+
 

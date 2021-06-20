@@ -1,0 +1,22 @@
+# http://pulsar.apache.org/docs/en/io-debezium-source/#example-of-postgresql
+
+tenant: "public"
+namespace: "default"
+name: "debezium-postgres-source"
+topicName: "debezium-postgres-topic"
+archive: "connectors/pulsar-io-debezium-postgres-2.7.2.nar"
+parallelism: 1
+
+configs:
+  database.hostname: "postgres"
+  database.port: "5432"
+  database.user: "postgres"
+  database.password: "changeme"
+  database.dbname: "entity_search"
+  database.server.name: "foobar"
+  plugin.name: "pgoutput"
+  schema.whitelist: "public"
+  table.whitelist: "public.book"
+
+  ## PULSAR_SERVICE_URL_CONFIG
+  pulsar.service.url: "pulsar://127.0.0.1:6650"

@@ -1,0 +1,24 @@
+{
+  "before": null,
+  "after": {
+    "id": 3,
+    "isbn": 222,
+    "title": "Dark Tower 2",
+    "author_id": 1
+  },
+  "source": {
+    "version": "1.0.0.Final",
+    "connector": "postgresql",
+    "name": "foobar",
+    "ts_ms": 1623774632997,
+    "snapshot": "false",
+    "db": "entity_search",
+    "schema": "public",
+    "table": "book",
+    "txId": 493,
+    "lsn": 22960920,
+    "xmin": null
+  },
+  "op": "u",
+  "ts_ms": 1623774633044
+}
