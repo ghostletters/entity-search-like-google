@@ -1,5 +1,6 @@
 package xyz.ghostletters.searchapp.pulsar.event;
 
+// not strictly needed for showcase
 public class Source {
 
     private String version;
