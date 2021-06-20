@@ -14,11 +14,12 @@ services:
 
   # https://pulsar.apache.org/docs/en/standalone/
   pulsar:
-      image: apachepulsar/pulsar:${PULSAR_VERSION}
+      image: apachepulsar/pulsar:2.8.0
       hostname: pulsar
       ports:
         - "8080:8080"
         - "6650:6650"
       command: bin/pulsar standalone
+
 
 

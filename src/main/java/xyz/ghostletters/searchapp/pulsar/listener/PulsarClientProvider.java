@@ -7,18 +7,17 @@ import org.apache.pulsar.client.api.PulsarClientException;
 
 public class PulsarClientProvider {
 
-    public static Consumer buildConsumer(String topicName, MessageListener messageListener) throws PulsarClientException {
-        return buildPulsarClient().newConsumer()
+    public static Consumer buildConsumer(String topicName, MessageListener<byte[]> messageListener) throws PulsarClientException {
+        return buildClient().newConsumer()
                 .topic(topicName)
                 .subscriptionName("whatever")
                 .messageListener(messageListener)
                 .subscribe();
     }
 
-    private static PulsarClient buildPulsarClient() throws PulsarClientException {
+    private static PulsarClient buildClient() throws PulsarClientException {
         return PulsarClient.builder()
                 .serviceUrl("pulsar://localhost:6650")
                 .build();
     }
-
 }

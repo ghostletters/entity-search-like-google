@@ -26,7 +26,7 @@ public class BookListener {
     MessageListener messageListener = (consumer, message) -> {
         try {
             String data = new String(message.getData());
-            System.out.println("Message received: " + data);
+            System.out.println(data);
 
             BookChangeEvent bookChangeEvent = objectMapper.readValue(data, BookChangeEvent.class);
             System.out.println(bookChangeEvent.getAfter().getTitle());
