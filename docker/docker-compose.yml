@@ -10,7 +10,14 @@ services:
         POSTGRES_DB: entity_search
       ports:
         - "5432:5432"
-      #volumes:
-      #  - "./postgres/postgres.conf:/etc/postgresql/postgresql.conf"
-      #command: postgres -c config_file=/etc/postgresql/postgresql.conf
+      command: postgres -c wal_level=logical
+
+  # https://pulsar.apache.org/docs/en/standalone/
+  pulsar:
+      image: apachepulsar/pulsar:2.8.0
+      hostname: pulsar
+      ports:
+        - "8080:8080"
+        - "6650:6650"
+      command: bin/pulsar standalone
 
