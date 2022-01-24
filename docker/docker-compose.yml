@@ -3,12 +3,12 @@ version: "3.7"
 services:
   # https://hub.docker.com/_/postgres
   postgres:
-      image: postgres:13.3
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: changeme
-        POSTGRES_DB: entity_search
-      ports:
-        - "5432:5432"
+    image: postgres:13.3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: entity_search
+    ports:
+      - "5432:5432"
 
 
