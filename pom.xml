@@ -17,6 +17,8 @@
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
     <quarkus.platform.version>1.13.4.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+    <pulsar.version>2.9.1</pulsar.version>
+
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -32,6 +34,19 @@
   <dependencies>
 
 
+    <!-- https://pulsar.apache.org/docs/en/client-libraries-java/ -->
+    <dependency>
+      <groupId>org.apache.pulsar</groupId>
+      <artifactId>pulsar-client</artifactId>
+      <version>${pulsar.version}</version>
+    </dependency>
+
+    <!-- https://pulsar.apache.org/docs/en/admin-api-overview/ -->
+    <dependency>
+      <groupId>org.apache.pulsar</groupId>
+      <artifactId>pulsar-client-admin</artifactId>
+      <version>${pulsar.version}</version>
+    </dependency>
 
     <!-- https://quarkus.io/guides/spring-data-jpa -->
     <dependency>
