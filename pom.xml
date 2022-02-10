@@ -34,6 +34,13 @@
   <dependencies>
 
 
+
+    <!-- https://quarkus.io/guides/elasticsearch -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-elasticsearch-rest-client</artifactId>
+    </dependency>
+
     <!-- https://pulsar.apache.org/docs/en/client-libraries-java/ -->
     <dependency>
       <groupId>org.apache.pulsar</groupId>
@@ -119,6 +126,14 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>16</source>
+                <target>16</target>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
   <profiles>

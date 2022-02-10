@@ -13,7 +13,7 @@ import java.util.Set;
 public class AuthorSeeder {
 
     @Inject
-    AutherRepository autherRepository;
+    AuthorRepository autherRepository;
 
     public void onStart(@Observes StartupEvent startupEvent) {
         autherRepository.save(buildAutherWithBooks());
