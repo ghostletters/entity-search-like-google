@@ -17,51 +17,64 @@ public class BookIndexConfig {
     @Inject
     RestClient restClient;
 
-    public void onStart(@Observes StartupEvent startupEvent) {
+    public void onStart(@Observes StartupEvent startupEvent) throws IOException {
         Request request = new Request("PUT", bookIndex);
 
-        try {
-            if (isIndexPresent(bookIndex)) {
-                return;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (isIndexPresent(bookIndex)) {
+            return;
         }
 
         String indexConfig = """
                 {
-                  "settings": {
-                    "analysis": {
-                      "analyzer": {
-                        "my_text_field_analyzer": {
-                          "tokenizer": "standard",
-                          "filter": [
-                            "lowercase",
-                            "my_text_asciifolding_filter"
-                          ]
-                        }
-                      },
-                      "filter": {
-                        "my_text_asciifolding_filter": {
-                          "type": "asciifolding",
-                          "preserve_original": true
-                        }
-                      }
-                    }
-                  },
-                  "mappings": {
-                    "properties": {
-                      "title": {
-                        "type": "text",
-                        "analyzer": "my_text_field_analyzer"
-                      },
-                      "author": {
-                        "type": "text",
-                        "analyzer": "my_text_field_analyzer"
-                      }
-                    }
-                  }
-                }
+                   "settings": {
+                     "analysis": {
+                       "tokenizer": {
+                         "edge_ngram_2_20": {
+                           "type": "edge_ngram",
+                           "min_gram": 2,
+                           "max_gram": 20,
+                           "token_chars": [
+                             "letter"
+                           ]
+                         }
+                       },
+                       "analyzer": {
+                         "autocomplete": {
+                           "tokenizer": "edge_ngram_2_20",
+                           "filter": [
+                             "lowercase",
+                             "asciifolding"
+                           ]
+                         },
+                         "autocomplete_search": {
+                           "tokenizer": "lowercase",
+                           "filter": [
+                             "asciifolding"
+                           ]
+                         }
+                       }
+                     }
+                   },
+                   "mappings": {
+                    "properties" : {
+                       "title" : {
+                         "type": "text",
+                         "analyzer": "autocomplete",
+                         "search_analyzer": "autocomplete_search"
+                       },
+                       "author" : {
+                         "type": "text",
+                         "analyzer": "autocomplete",
+                         "search_analyzer": "autocomplete_search"
+                       },
+                       "author_title_combined" : {
+                         "type": "text",
+                         "analyzer": "autocomplete",
+                         "search_analyzer": "autocomplete_search"
+                       }
+                     }
+                   }
+                 }
                 """;
 
         request.setJsonEntity(indexConfig);

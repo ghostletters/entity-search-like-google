@@ -16,32 +16,15 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 
+// https://quarkus.io/guides/elasticsearch#programmatically-configuring-elasticsearch
 @ElasticsearchClientConfig
 public class SSLContextConfigurator implements RestClientBuilder.HttpClientConfigCallback {
-//    @Override
-//    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-//        try {
-//            String keyStorePass = "changeme";
-//            Path trustStorePath = Paths.get("/home/newur/http.p12");
-//            KeyStore truststore = KeyStore.getInstance("pkcs12");
-//            try (InputStream is = Files.newInputStream(trustStorePath)) {
-//                truststore.load(is, keyStorePass.toCharArray());
-//            }
-//            SSLContextBuilder sslBuilder = SSLContexts.custom()
-//                    .loadTrustMaterial(truststore, null);
-//            SSLContext sslContext = sslBuilder.build();
-//            httpClientBuilder.setSSLContext(sslContext);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        return httpClientBuilder;
-//    }
 
+    // https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/_encrypted_communication.html
     @Override
     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
         try {
-            Path caCertificatePath = Paths.get("/home/newur/http_ca.crt");
+            Path caCertificatePath = Paths.get("../ca.crt");
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
             Certificate trustedCa;
             try (InputStream is = Files.newInputStream(caCertificatePath)) {
