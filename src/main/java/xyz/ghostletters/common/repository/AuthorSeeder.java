@@ -20,9 +20,9 @@ public class AuthorSeeder {
     }
 
     private Author buildAutherWithBooks() {
-        Book book = new Book("Dark Tower 1", 111);
-        Book book2 = new Book("Dark Tower 2", 222);
+        Book book = new Book("Cien años de soledad", 1);
+        Book book2 = new Book("Crónica de una muerte anunciada", 2);
 
-        return new Author("Steven King", Set.of(book, book2));
+        return new Author("Gabriel García Márquez", Set.of(book, book2));
     }
 }

@@ -17,7 +17,7 @@ public record BookSearchView(
         );
     }
 
-    public static BookSearchView unknownBookSearchView() {
+    public static BookSearchView unknown() {
         return new BookSearchView("UNKNOWN", "UNKNOWN", -1);
     }
 }

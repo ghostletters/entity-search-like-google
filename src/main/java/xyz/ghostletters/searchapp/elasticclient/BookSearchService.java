@@ -27,7 +27,7 @@ public class BookSearchService {
 
             BookSearchView bookSearchView = byBook
                     .map(author -> new BookSearchView(author, book))
-                    .orElseGet(BookSearchView::unknownBookSearchView);
+                    .orElseGet(BookSearchView::unknown);
 
             bookSearchViewRepository.save(bookSearchView);
             return true;
