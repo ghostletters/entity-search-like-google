@@ -20,11 +20,13 @@ import java.security.cert.CertificateFactory;
 @ElasticsearchClientConfig
 public class SSLContextConfigurator implements RestClientBuilder.HttpClientConfigCallback {
 
+    private static final String RELATIVE_PATH_CA_CERT = "../docker/certs/ca/ca.crt";
+
     // https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/_encrypted_communication.html
     @Override
     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
         try {
-            Path caCertificatePath = Paths.get("../ca.crt");
+            Path caCertificatePath = Paths.get(RELATIVE_PATH_CA_CERT);
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
             Certificate trustedCa;
             try (InputStream is = Files.newInputStream(caCertificatePath)) {
