@@ -20,3 +20,4 @@ services:
       - "8080:8080"
       - "6650:6650"
     command: bin/pulsar standalone
+
