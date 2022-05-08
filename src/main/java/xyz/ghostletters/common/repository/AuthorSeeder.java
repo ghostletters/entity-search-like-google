@@ -20,9 +20,9 @@ public class AuthorSeeder {
     }
 
     private Author buildAutherWithBooks() {
-        Book book = new Book("Dark Tower 1", 111);
-        Book book2 = new Book("Dark Tower 2", 222);
+        Book book = new Book("Tower of Light", 111);
+        Book book2 = new Book("My Journey", 222);
 
-        return new Author("Steven King", Set.of(book, book2));
+        return new Author("Açaí Müller", Set.of(book, book2));
     }
 }
