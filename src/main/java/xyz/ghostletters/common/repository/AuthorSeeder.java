@@ -23,6 +23,6 @@ public class AuthorSeeder {
         Book book = new Book("Tower of Light", 111);
         Book book2 = new Book("My Journey", 222);
 
-        return new Author("Açaí Müller", Set.of(book, book2));
+        return new Author("Sáné Müller", Set.of(book, book2));
     }
 }
